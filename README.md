@@ -18,11 +18,11 @@ A full-stack Amazon-inspired eCommerce platform that allows users to browse prod
 
 🛠️ Tech Stack
 
-Frontend: HTML, CSS, JavaScript (or React if you used it)
+Frontend: HTML, CSS, JavaScript 
 
 Backend: Node.js, Express.js
 
-Database: MongoDB / Firebase (whichever you used)
+Database: suparbase / Firebase
 
 Deployment: Vercel / Render / Netlify
 
