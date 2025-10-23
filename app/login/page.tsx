@@ -34,6 +34,19 @@ export default function LoginPage() {
     }
   }
 
+  const handleAdminLogin = async () => {
+    setError("")
+    setIsLoading(true)
+    try {
+      await login("admin@example.com", "admin123")
+      router.push("/admin")
+    } catch (err) {
+      setError("Admin login failed")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-background">
       <Header />
@@ -117,9 +130,25 @@ export default function LoginPage() {
 
           {/* Demo Credentials */}
           <div className="mt-6 p-4 bg-muted rounded-lg">
-            <p className="text-xs font-semibold text-muted-foreground mb-2">Demo Credentials:</p>
-            <p className="text-xs text-muted-foreground">Email: demo@example.com</p>
-            <p className="text-xs text-muted-foreground">Password: demo123</p>
+            <p className="text-xs font-semibold text-muted-foreground mb-3">Demo Credentials:</p>
+            <div className="space-y-2">
+              <div>
+                <p className="text-xs text-muted-foreground">User Email: demo@example.com</p>
+                <p className="text-xs text-muted-foreground">Password: demo123</p>
+              </div>
+              <div className="pt-2 border-t border-border">
+                <p className="text-xs text-muted-foreground mb-2">Admin Email: admin@example.com</p>
+                <p className="text-xs text-muted-foreground mb-3">Password: admin123</p>
+                <Button
+                  type="button"
+                  onClick={handleAdminLogin}
+                  disabled={isLoading}
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 font-semibold text-sm"
+                >
+                  {isLoading ? "Logging in..." : "Login as Admin"}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
