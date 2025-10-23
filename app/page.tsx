@@ -16,7 +16,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-              <h1 className="text-5xl font-bold mb-4">Welcome to Amazon </h1>
+              <h1 className="text-5xl font-bold mb-4">Welcome to Amazon</h1>
               <p className="text-xl text-gray-300 mb-6">
                 Discover millions of products at unbeatable prices. Shop now and save big!
               </p>
