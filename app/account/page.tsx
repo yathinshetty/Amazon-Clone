@@ -7,18 +7,29 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/auth-context"
-import { User, Package, Settings, LogOut, ChevronRight } from "lucide-react"
+import { useOrders } from "@/lib/orders-context"
+import { User, Package, Settings, LogOut, ChevronRight, CheckCircle, Clock, Truck } from "lucide-react"
+import type { Order } from "@/lib/orders-context"
 
 export default function AccountPage() {
   const router = useRouter()
   const { user, isLoading, logout } = useAuth()
+  const { getUserOrders } = useOrders()
   const [activeTab, setActiveTab] = useState("overview")
+  const [userOrders, setUserOrders] = useState<Order[]>([])
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/login")
     }
   }, [user, isLoading, router])
+
+  useEffect(() => {
+    if (user) {
+      const orders = getUserOrders(user.id)
+      setUserOrders(orders)
+    }
+  }, [user, getUserOrders])
 
   if (isLoading) {
     return (
@@ -39,6 +50,38 @@ export default function AccountPage() {
   const handleLogout = () => {
     logout()
     router.push("/")
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  }
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(price)
+  }
+
+  const getStatusIcon = (status: Order["status"]) => {
+    switch (status) {
+      case "pending":
+        return <Clock size={20} className="text-yellow-600" />
+      case "processing":
+        return <Package size={20} className="text-blue-600" />
+      case "shipped":
+        return <Truck size={20} className="text-purple-600" />
+      case "delivered":
+        return <CheckCircle size={20} className="text-green-600" />
+    }
+  }
+
+  const getStatusLabel = (status: Order["status"]) => {
+    return status.charAt(0).toUpperCase() + status.slice(1)
   }
 
   return (
@@ -78,6 +121,11 @@ export default function AccountPage() {
                 >
                   <Package size={20} />
                   <span className="font-semibold">Orders</span>
+                  {userOrders.length > 0 && (
+                    <span className="ml-auto bg-primary text-primary-foreground text-xs rounded-full px-2 py-1">
+                      {userOrders.length}
+                    </span>
+                  )}
                 </button>
                 <button
                   onClick={() => setActiveTab("settings")}
@@ -166,14 +214,68 @@ export default function AccountPage() {
             {/* Orders Tab */}
             {activeTab === "orders" && (
               <div className="bg-card border border-border rounded-lg p-6">
-                <h2 className="text-xl font-bold mb-4 text-card-foreground">Your Orders</h2>
-                <div className="text-center py-12">
-                  <Package size={48} className="mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground mb-4">You haven't placed any orders yet</p>
-                  <Link href="/products">
-                    <Button className="bg-primary hover:bg-primary-dark text-primary-foreground">Start Shopping</Button>
-                  </Link>
-                </div>
+                <h2 className="text-xl font-bold mb-6 text-card-foreground">Your Orders</h2>
+                {userOrders.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Package size={48} className="mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground mb-4">You haven't placed any orders yet</p>
+                    <Link href="/products">
+                      <Button className="bg-primary hover:bg-primary-dark text-primary-foreground">
+                        Start Shopping
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {userOrders.map((order) => (
+                      <div key={order.id} className="border border-border rounded-lg p-4 hover:shadow-md transition">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Order ID</p>
+                            <p className="font-semibold text-card-foreground">{order.id}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {getStatusIcon(order.status)}
+                            <span className="font-semibold text-card-foreground">{getStatusLabel(order.status)}</span>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Order Date</p>
+                            <p className="font-semibold text-card-foreground">{formatDate(order.createdAt)}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Total Amount</p>
+                            <p className="font-semibold text-card-foreground">{formatPrice(order.totalAmount)}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Items</p>
+                            <p className="font-semibold text-card-foreground">{order.items.length}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Shipping To</p>
+                            <p className="font-semibold text-card-foreground">{order.shippingAddress.city}</p>
+                          </div>
+                        </div>
+
+                        <div className="border-t pt-4">
+                          <p className="text-sm font-semibold text-card-foreground mb-2">Items Ordered:</p>
+                          <div className="space-y-2">
+                            {order.items.map((item) => (
+                              <div key={item.product.id} className="flex justify-between text-sm text-muted-foreground">
+                                <span>
+                                  {item.product.name} x {item.quantity}
+                                </span>
+                                <span>{formatPrice(item.product.price * item.quantity)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

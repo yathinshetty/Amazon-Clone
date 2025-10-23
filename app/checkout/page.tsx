@@ -10,18 +10,22 @@ import { Footer } from "@/components/footer"
 import { CartSummary } from "@/components/cart-summary"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/lib/cart-context"
+import { useAuth } from "@/lib/auth-context"
+import { useOrders } from "@/lib/orders-context"
 import { ChevronLeft, Check } from "lucide-react"
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { items, getTotalItems, clearCart } = useCart()
+  const { items, getTotalItems, getTotalPrice, clearCart } = useCart()
+  const { user } = useAuth()
+  const { addOrder } = useOrders()
   const [isProcessing, setIsProcessing] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(false)
 
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    email: "",
+    email: user?.email || "",
     phone: "",
     address: "",
     city: "",
@@ -46,6 +50,27 @@ export default function CheckoutPage() {
 
     // Simulate payment processing
     await new Promise((resolve) => setTimeout(resolve, 2000))
+
+    if (user) {
+      addOrder({
+        userId: user.id,
+        userName: user.name,
+        userEmail: user.email,
+        items,
+        totalAmount: getTotalPrice(),
+        status: "pending",
+        shippingAddress: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode,
+        },
+      })
+    }
 
     setIsProcessing(false)
     setOrderPlaced(true)

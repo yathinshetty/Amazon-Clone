@@ -13,6 +13,7 @@ export interface User {
   state?: string
   zipCode?: string
   createdAt: string
+  lastLogin?: string
 }
 
 interface AuthContextType {
@@ -22,6 +23,7 @@ interface AuthContextType {
   signup: (email: string, password: string, name: string) => Promise<void>
   logout: () => void
   updateProfile: (data: Partial<User>) => Promise<void>
+  getAllUsers: () => User[]
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -47,13 +49,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    const newUser: User = {
+    const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]")
+    const existingUser = allUsers.find((u: User) => u.email === email)
+
+    const newUser: User = existingUser || {
       id: Math.random().toString(36).substr(2, 9),
       email,
       name: email.split("@")[0],
       createdAt: new Date().toISOString(),
     }
 
+    newUser.lastLogin = new Date().toISOString()
+
+    const userIndex = allUsers.findIndex((u: User) => u.email === email)
+    if (userIndex >= 0) {
+      allUsers[userIndex] = newUser
+    } else {
+      allUsers.push(newUser)
+    }
+
+    localStorage.setItem("allUsers", JSON.stringify(allUsers))
     setUser(newUser)
     localStorage.setItem("user", JSON.stringify(newUser))
   }
@@ -62,12 +77,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
+    const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]")
+
     const newUser: User = {
       id: Math.random().toString(36).substr(2, 9),
       email,
       name,
       createdAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
     }
+
+    allUsers.push(newUser)
+    localStorage.setItem("allUsers", JSON.stringify(allUsers))
 
     setUser(newUser)
     localStorage.setItem("user", JSON.stringify(newUser))
@@ -86,11 +107,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const updatedUser = { ...user, ...data }
       setUser(updatedUser)
       localStorage.setItem("user", JSON.stringify(updatedUser))
+
+      const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]")
+      const userIndex = allUsers.findIndex((u: User) => u.email === user.email)
+      if (userIndex >= 0) {
+        allUsers[userIndex] = updatedUser
+        localStorage.setItem("allUsers", JSON.stringify(allUsers))
+      }
     }
   }
 
+  const getAllUsers = () => {
+    const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]")
+    return allUsers
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, updateProfile }}>
+    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, updateProfile, getAllUsers }}>
       {children}
     </AuthContext.Provider>
   )

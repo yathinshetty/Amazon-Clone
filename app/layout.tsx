@@ -5,6 +5,7 @@ import "./globals.css"
 import { CartProvider } from "@/lib/cart-context"
 import { AuthProvider } from "@/lib/auth-context"
 import { AdminProvider } from "@/lib/admin-context"
+import { OrdersProvider } from "@/lib/orders-context"
 
 const geistSans = Geist({ subsets: ["latin"] })
 const geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -25,7 +26,9 @@ export default function RootLayout({
       <body className={`${geistSans.className} bg-background text-foreground`}>
         <AuthProvider>
           <AdminProvider>
-            <CartProvider>{children}</CartProvider>
+            <OrdersProvider>
+              <CartProvider>{children}</CartProvider>
+            </OrdersProvider>
           </AdminProvider>
         </AuthProvider>
       </body>
