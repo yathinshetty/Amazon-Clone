@@ -38,7 +38,7 @@ export default function LoginPage() {
     setError("")
     setIsLoading(true)
     try {
-      await login("admin@example.com", "admin123")
+      await login("Yathin@3103.com", "6364532810")
       router.push("/admin")
     } catch (err) {
       setError("Admin login failed")
@@ -137,8 +137,8 @@ export default function LoginPage() {
                 <p className="text-xs text-muted-foreground">Password: demo123</p>
               </div>
               <div className="pt-2 border-t border-border">
-                <p className="text-xs text-muted-foreground mb-2">Admin Email: admin@example.com</p>
-                <p className="text-xs text-muted-foreground mb-3">Password: admin123</p>
+                <p className="text-xs text-muted-foreground mb-2">Admin Email: Yathin@3103.com</p>
+                <p className="text-xs text-muted-foreground mb-3">Password: 6364532810</p>
                 <Button
                   type="button"
                   onClick={handleAdminLogin}
