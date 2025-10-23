@@ -12,7 +12,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && (!user || user.email !== "admin@example.com")) {
+    if (!isLoading && (!user || user.email !== "Yathin@3103.com")) {
       router.push("/login")
     }
   }, [user, isLoading, router])
@@ -21,7 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>
   }
 
-  if (!user || user.email !== "admin@example.com") {
+  if (!user || user.email !== "Yathin@3103.com") {
     return null
   }
 
