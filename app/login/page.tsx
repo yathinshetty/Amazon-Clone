@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [isAdminMode, setIsAdminMode] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,22 +27,13 @@ export default function LoginPage() {
 
     try {
       await login(email, password)
-      router.push("/account")
+      if (email === "Yathin@3103.com") {
+        router.push("/admin")
+      } else {
+        router.push("/account")
+      }
     } catch (err) {
       setError("Invalid email or password")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleAdminLogin = async () => {
-    setError("")
-    setIsLoading(true)
-    try {
-      await login("Yathin@3103.com", "6364532810")
-      router.push("/admin")
-    } catch (err) {
-      setError("Admin login failed")
     } finally {
       setIsLoading(false)
     }
@@ -53,8 +45,10 @@ export default function LoginPage() {
 
       <div className="max-w-md mx-auto px-4 py-12">
         <div className="bg-card border border-border rounded-lg p-8">
-          <h1 className="text-2xl font-bold mb-2 text-card-foreground">Sign In</h1>
-          <p className="text-muted-foreground mb-6">Welcome back to Amazon Clone</p>
+          <h1 className="text-2xl font-bold mb-2 text-card-foreground">{isAdminMode ? "Admin Sign In" : "Sign In"}</h1>
+          <p className="text-muted-foreground mb-6">
+            {isAdminMode ? "Enter your admin credentials" : "Welcome back to Amazon Clone"}
+          </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
@@ -120,6 +114,15 @@ export default function LoginPage() {
             <div className="flex-1 h-px bg-border" />
           </div>
 
+          <Button
+            type="button"
+            onClick={() => setIsAdminMode(!isAdminMode)}
+            variant="outline"
+            className="w-full mb-4 border-orange-500 text-orange-600 hover:bg-orange-50"
+          >
+            {isAdminMode ? "Switch to User Login" : "Login as Admin"}
+          </Button>
+
           {/* Sign Up Link */}
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
@@ -127,29 +130,6 @@ export default function LoginPage() {
               Create one
             </Link>
           </p>
-
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-muted rounded-lg">
-            <p className="text-xs font-semibold text-muted-foreground mb-3">Demo Credentials:</p>
-            <div className="space-y-2">
-              <div>
-                <p className="text-xs text-muted-foreground">User Email: demo@example.com</p>
-                <p className="text-xs text-muted-foreground">Password: demo123</p>
-              </div>
-              <div className="pt-2 border-t border-border">
-                <p className="text-xs text-muted-foreground mb-2">Admin Email: Yathin@3103.com</p>
-                <p className="text-xs text-muted-foreground mb-3">Password: 6364532810</p>
-                <Button
-                  type="button"
-                  onClick={handleAdminLogin}
-                  disabled={isLoading}
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 font-semibold text-sm"
-                >
-                  {isLoading ? "Logging in..." : "Login as Admin"}
-                </Button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </main>
